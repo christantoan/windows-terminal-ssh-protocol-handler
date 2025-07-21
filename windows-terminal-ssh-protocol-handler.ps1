@@ -39,7 +39,7 @@ $wtProfile = ''
 $inputURI = $args[0]
 $inputArguments = @{}
 
-if ($inputURI -match '(?<Protocol>\w+)\:\/\/(?:(?<Username>[\w|\@|\.]+)@)?(?<HostAddress>.+)\:(?<Port>\d{2,5})') {
+if ($inputURI -match '(?<Protocol>\w+)\:\/\/(?:(?<Username>[\w|\@|\.]+)@)?(?<HostAddress>.+)(?<PortFormat>\:(?<Port>\d{2,5}))?') {
     $inputArguments.Add('Protocol', $Matches.Protocol)
     $inputArguments.Add('Username', $Matches.Username) # Optional
     $inputArguments.Add('Port', $Matches.Port)
@@ -92,9 +92,13 @@ if ($sshPreferredClient -eq 'openssh') {
     }
     
     if ($inputArguments.Username) {
-        $sshArguments += "{0} -l {1} -p {2}" -f $inputArguments.HostAddress, $inputArguments.Username, $inputArguments.Port
+        $sshArguments += "{0} -l {1}" -f $inputArguments.HostAddress, $inputArguments.Username
     } else {
-        $sshArguments += "{0} -p {1}" -f $inputArguments.HostAddress, $inputArguments.Port   
+        $sshArguments += "{0}" -f $inputArguments.HostAddress 
+    }
+
+    if ($inputArguments.Port) {
+        $sshArguments += " -p {0}" -f $inputArguments.Port
     }
     
     if ($sshVerbosity) {
@@ -116,9 +120,13 @@ if ($sshPreferredClient -eq 'plink') {
     }
 
     if ($inputArguments.Username) {
-        $sshArguments += "{0} -l {1} -P {2}" -f $inputArguments.HostAddress, $inputArguments.Username, $inputArguments.Port
+        $sshArguments += "{0} -l {1}" -f $inputArguments.HostAddress, $inputArguments.Username
     } else {
-        $sshArguments += "{0} -P {1}" -f $inputArguments.HostAddress, $inputArguments.Port   
+        $sshArguments += "{0}" -f $inputArguments.HostAddress
+    }
+
+    if ($inputArguments.Port) {
+        $sshArguments += " -P {0}" -f $inputArguments.Port
     }
 
     if ($sshVerbosity) {
